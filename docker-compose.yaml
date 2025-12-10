@@ -6,16 +6,31 @@ services:
     image: ghcr.io/lllyasviel/fooocus:latest
     ports:
       - "7865:7865"
-    volumes:
-      - data:/workspace
     environment:
-      # força CPU e desativa CUDA
-      - CLI_ARGS=--listen --listen-host 0.0.0.0 --disable-gpu
-    deploy:
-      resources:
-        reservations:
-          devices: []  # garante que não tenta pegar GPU
+      # Argumentos repassados para o launch.py via entrypoint.sh
+      # --listen      -> aceita conexões externas
+      # --always-cpu  -> força uso só de CPU, sem CUDA / NVIDIA
+      # opcional: "--always-cpu 6" para sugerir 6 threads de CPU
+      - CMDARGS=--listen --always-cpu
+      # Diretório de dados (modelos, configs, etc.)
+      - DATADIR=/content/data
+      - config_path=/content/data/config.txt
+      - config_example_path=/content/data/config_modification_tutorial.txt
+      - path_checkpoints=/content/data/models/checkpoints/
+      - path_loras=/content/data/models/loras/
+      - path_embeddings=/content/data/models/embeddings/
+      - path_vae_approx=/content/data/models/vae_approx/
+      - path_upscale_models=/content/data/models/upscale_models/
+      - path_inpaint=/content/data/models/inpaint/
+      - path_controlnet=/content/data/models/controlnet/
+      - path_clip_vision=/content/data/models/clip_vision/
+      - path_fooocus_expansion=/content/data/models/prompt_expansion/fooocus_expansion/
+      # Outputs precisam ficar sob /content/app para histórico/log funcionar
+      - path_outputs=/content/app/outputs/
+    volumes:
+      - fooocus-data:/content/data
+    tty: true
     restart: unless-stopped
 
 volumes:
-  data:
+  fooocus-data:
