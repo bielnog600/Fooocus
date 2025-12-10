@@ -9,7 +9,12 @@ services:
     volumes:
       - data:/workspace
     environment:
-      - CLI_ARGS=--listen --listen-host 0.0.0.0
+      # força CPU e desativa CUDA
+      - CLI_ARGS=--listen --listen-host 0.0.0.0 --disable-gpu
+    deploy:
+      resources:
+        reservations:
+          devices: []  # garante que não tenta pegar GPU
     restart: unless-stopped
 
 volumes:
